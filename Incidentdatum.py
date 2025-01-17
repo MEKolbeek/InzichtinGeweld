@@ -6,6 +6,7 @@ import json
 API_URL = "http://localhost:11434/api/generate"  # Zorg dat deze klopt
 MODEL_NAME = "llama3.2"
 
+# Functie om tekst uit een PDF te halen
 def extract_text_from_pdf(pdf_path):
     text = ""
     with fitz.open(pdf_path) as doc:
@@ -13,6 +14,27 @@ def extract_text_from_pdf(pdf_path):
             text += page.get_text()
     return text
 
+# Functie om een LLaMA-model op te slaan
+def save_llama_model(api_url, model_name, save_path):
+    payload = {"model": model_name, "action": "save", "path": save_path}
+    try:
+        response = requests.post(api_url, json=payload)
+        response.raise_for_status()
+        print("Model succesvol opgeslagen.")
+    except requests.exceptions.RequestException as e:
+        print(f"Fout bij opslaan van model: {e}")
+
+# Functie om een LLaMA-model te laden
+def load_llama_model(api_url, model_name, load_path):
+    payload = {"model": model_name, "action": "load", "path": load_path}
+    try:
+        response = requests.post(api_url, json=payload)
+        response.raise_for_status()
+        print("Model succesvol geladen.")
+    except requests.exceptions.RequestException as e:
+        print(f"Fout bij laden van model: {e}")
+
+# Functie om een prompt naar LLaMA te sturen en streaming resultaten te verwerken
 def query_llama_streaming(prompt):
     payload = {
         "model": MODEL_NAME,
@@ -26,6 +48,7 @@ def query_llama_streaming(prompt):
     except requests.exceptions.RequestException as e:
         raise Exception(f"Fout bij API-aanroep: {e}")
 
+# Functie om streaming response te verwerken
 def process_streaming_response(lines):
     full_text = ""
     try:
@@ -42,6 +65,7 @@ def process_streaming_response(lines):
         print(f"Fout bij verwerking van streaming data: {e}")
         return ""
 
+# Functie om zinnen met datums uit een PDF te halen
 def extract_sentences_with_dates(pdf_path):
     pdf_text = extract_text_from_pdf(pdf_path)
     chunk_size = 2000
@@ -63,6 +87,16 @@ def extract_sentences_with_dates(pdf_path):
     print("Zinnen met datums:")
     for sentence in date_sentences:
         print("-", sentence)
+
+# Opslaan en laden van het model
+SAVE_PATH = "C:/Users/mkolb/Documents/llama_model_saved.bin"
+LOAD_PATH = "C:/Users/mkolb/Documents/llama_model_saved.bin"
+
+# Opslaan van het model
+save_llama_model(API_URL, MODEL_NAME, SAVE_PATH)
+
+# Laden van het model
+load_llama_model(API_URL, MODEL_NAME, LOAD_PATH)
 
 # Test met een voorbeeld-PDF
 extract_sentences_with_dates(r"C:\Users\mkolb\Documents\ECLI_NL_RBROT_2010_BN3932.pdf")
