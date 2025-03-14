@@ -8,9 +8,9 @@ headers = {"Authorization": "Bearer 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"}
 def extract_text_from_pdf(pdf_path):
     text = ""
     with fitz.open(pdf_path) as doc:
-        for page in doc:
-            text += page.get_text()
-    return text
+        for page in doc: # Loop door elke pagina
+            text += page.get_text() # Haal de tekst op en voeg toe aan 'text'
+    return text # Retourneer de volledige tekst van het document
 
 def query_llama(text):
     payload = {
